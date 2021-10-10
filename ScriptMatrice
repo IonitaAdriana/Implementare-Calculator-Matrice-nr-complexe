@@ -1,0 +1,311 @@
+#include <iostream>
+#include<fstream>
+#include<cmath>
+
+using namespace std;
+
+class complex
+{
+private:
+ double re, im;
+
+friend istream &operator >>(istream &is, complex &c0);
+friend ostream &operator <<(ostream &os, complex &c);
+public:
+
+complex operator+(const complex );
+complex operator*(const complex );
+double get_re();
+double get_im();
+void set_re(double );
+void set_im(double );
+
+friend class matrice;
+
+};
+
+istream &operator >>(istream &is, complex &c0)
+{is>>c0.re>>c0.im;
+ return is;}
+
+ ostream &operator <<(ostream &os, complex &c)
+{os<<c.re<<c.im;
+ return os;}
+
+complex complex::operator+(const complex c3)
+{ complex S;
+  S.re=( *this).re + c3.re;
+  S.im=( *this).im + c3.im;
+   return  S;
+}
+complex complex:: operator*(const complex c4)
+{ complex P;
+  P.re= (*this).re * c4.re;
+P.im=(*this).im *c4.im;
+  return P;}
+
+double complex :: get_re()
+{
+    return re;
+}
+
+double complex :: get_im()
+{
+    return im;
+}
+
+void complex:: set_re(double a)
+{
+    re=a;
+}
+
+void complex:: set_im(double b)
+{
+    im=b;
+}
+
+
+
+class matrice
+{private:
+int row, col;
+complex **mat;
+
+
+
+
+public:
+void citire_mat(istream &is);
+// istream &operator >>(istream is, complex &c0);
+// ostream &operator <<(ostream os; complex &c);
+void afis_mat();
+matrice(int,int); //de initializare
+matrice (const matrice&);
+//~matrice();
+matrice operator+(const matrice& );
+matrice operator*(const matrice& );
+void determinant(int&,int&);
+void inversa(int,int);
+
+};
+
+
+
+matrice :: matrice(int a,int b)
+{
+    row=a; col=b;
+    int i;
+    mat=new complex*[row];
+    for(i=0;i<row;i++)
+            mat[i]=new complex[col];
+
+
+}
+
+matrice :: matrice(const matrice &p)
+{
+    row=p.row;
+    col=p.col;
+    mat=new complex*[row];
+    for(int i=0;i<row;i++)
+    {
+        mat[i]=new complex[col];
+        for(int j=0;j<col;j++)
+    {
+        mat[i][j].re= p.mat[i][j].re;
+        mat[i][j].im= p.mat[i][j].im;
+
+    }
+    }
+}
+
+//   ~matrice()
+      // {
+     // delete [] mat;
+    //}
+
+
+void matrice::citire_mat(istream &is)
+{
+int i,j;
+for(i=0;i<row;i++)
+    for(j=0;j<col;j++)
+         //cin>>mat[i][j].re>>mat[i][j].im;
+         is>>mat[i][j].re>>mat[i][j].im;
+
+
+}
+
+
+
+void matrice::afis_mat()
+{    int i,j;
+for(i=0;i<row ;i++)
+     { for(j=0; j<col;j++)
+            cout<<mat[i][j].re<<" +("<<mat[i][j].im<<"i) ";
+       cout<<endl;
+    }
+}
+
+
+void matrice::determinant(int &detr,int &deti)
+{
+
+         int k1=0,k2=row-1,a1,b1,a2,b2,c1,c2,d1,d2;
+         if(row==1)
+           cout<<mat[0][0].re<<" +("<<mat[0][0].im<<"i) ";
+           else
+             if(row==2)
+              {
+                  detr=mat[0][0].re*mat[1][1].re-mat[1][1].im*mat[0][0].im;
+                  detr=detr-(mat[0][1].re*mat[1][0].re-mat[0][1].im*mat[1][0].im);
+                  deti=mat[0][0].im*mat[1][1].re+mat[0][0].re*mat[1][1].im;
+                  deti=deti-(mat[0][1].im*mat[1][0].re+mat[0][1].re*mat[1][0].im);
+                              cout<<detr<<" +("<<deti<<"i) ";
+
+            }
+
+              else
+              {
+
+         for(int i=0;i<row;i++)
+            {
+                a1=1;
+                a2=1;
+                b1=1;
+                b2=1;
+                for(int j=0;j<col;j++)
+                    {
+                        if(k1>row-1)k1=0;
+                        if(k2<0)k2=row-1;
+                        c1=a1*mat[k1][j].re-a2*mat[k1][j].im;
+                        c2=a2*mat[k1][j].re+a1*mat[k1][j].im;
+                        d1=b1*mat[j][k2].re-b2*mat[j][k2].im;
+                        d2=b2*mat[j][k2].re+b1*mat[j][k2].im;
+                        a1=c1;a2=c2;b1=d1;b2=d2;
+                        k1++;
+                        k2--;
+                    }
+
+                    detr=detr+a1-b1;
+                    deti=deti+a2-b2;
+
+            }
+            cout<<detr<<" +("<<deti<<"i) ";
+              }
+
+
+
+
+}
+
+void matrice::inversa(int detr,int deti)
+{
+
+    matrice temp(row,col);
+    for(int i=0;i<row;i++)
+      for(int j=0;j<col;j++)
+        {
+            temp.mat[i][j].re=pow(-1,i+j)*mat[j][i].re;
+            temp.mat[i][j].im=pow(-1,i+j)*mat[j][i].im;
+        }
+    for(int i=0;i<row;i++)
+      {
+          for(int j=0;j<col;j++)
+              cout<<"("<<temp.mat[i][j].re<<"+("<<temp.mat[i][j].im<<"i)) / ("<<detr<<"+("<<deti<<"i))  ";
+          cout<<endl;
+      }
+}
+ matrice matrice:: operator +(const matrice &other)
+{
+    matrice temp(row,col);
+    if (row!=other.row ||col!=other.col)
+    {
+       for(int i=0;i<row;i++)
+        for(int j=0;j<col;j++)
+            temp.mat[i][j]=mat[i][j];
+       return temp;
+    }
+    else
+     {
+         for(int i=0;i<row;i++)
+             for(int j=0;j<col;j++)
+                 temp.mat[i][j]=other.mat[i][j]+mat[i][j];
+     }
+    return temp;
+}
+
+
+
+
+
+
+
+matrice  matrice::operator *(const matrice &other)
+{
+    if (col!=other.row)
+    {
+      matrice  temp(col,row);
+      for(int i=0;i<row;i++)
+        for(int j=0;j<col;j++)
+            {temp.mat[i][j].re=mat[i][j].re;
+             temp.mat[i][j].im=mat[i][j].im;}
+      return temp;
+    }
+    else
+    {
+      matrice  temp(col,other.row);
+       for(int i=0;i<row;i++)
+          for(int j=0;j<other.col;j++)
+           temp.mat[i][j].re=0,temp.mat[i][j].im=0;
+
+      for(int k=0;k<row;k++)
+      for(int i=0;i<row;i++)
+          for(int j=0;j<other.col;j++)
+                {
+                    temp.mat[k][i].re=temp.mat[k][i].re+ mat[k][j].re*other.mat[j][i].re + mat[k][j].im*(other.mat[j][i].im*(-1));
+                    temp.mat[k][i].im=temp.mat[k][i].im+ mat[k][j].re*other.mat[j][i].im + mat[k][j].im*other.mat[j][i].re;
+                 }
+      return temp;
+    }
+
+}
+
+
+
+int main()
+{
+    int lin,col;
+    ifstream f("data.in");
+    ofstream g("data.out");
+    f>>lin>>col;
+    matrice m(lin,col),n(lin,col),u(lin,col),v(lin,col);
+    cout<<"Matricea 1 este:"<<endl;
+    m.citire_mat(f);
+      m.afis_mat();
+    cout<<"Matricea 2 este:"<<endl;
+    n.citire_mat(f);
+
+    n.afis_mat();
+    cout<<"Suma este:"<<endl;
+    u=m+n;
+    u.afis_mat();
+    cout<<"Produsul este:"<<endl;
+    v=m*n;
+    v.afis_mat();
+    cout<<"Determinantul este:"<<endl;
+    int detr=0,deti=0;
+    m.determinant(detr,deti);
+    cout<<endl;
+    if(detr==0&&deti==0) cout<<"Nu se poate face inversa.";
+    else{
+    cout<<"Inversa matricei este:"<<endl;
+    m.inversa(detr,deti);}
+
+    f.close();
+    g.close();
+    return 0;
+
+
+}
+
